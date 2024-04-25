@@ -4,18 +4,13 @@ import gulp from 'gulp';
 import cleanCss from 'gulp-clean-css';
 import gulpIf from 'gulp-if';
 import imagemin, { mozjpeg } from 'gulp-imagemin';
-import jsonTransform from 'gulp-json-transform';
 import postcss from 'gulp-postcss';
-import rename from 'gulp-rename';
-import replace from 'gulp-replace';
-import sitemap from 'gulp-sitemap';
 import sourcemaps from 'gulp-sourcemaps';
 import webp from 'gulp-webp';
 import change from 'gulp-change';
 
 import autoprefixer from 'autoprefixer';
 import browser from 'browser-sync';
-import fetch from 'node-fetch';
 import fs from 'fs';
 import rimraf from 'rimraf';
 import yaml from 'js-yaml';
@@ -31,15 +26,8 @@ import npmSass from 'sass';
 import gulpSass from 'gulp-sass';
 const pluginSass = gulpSass(npmSass);
 
-import { processBlogFiles, getBlogEntries } from './src/services/blog-processor.js';
-import { processScienceBlogFiles } from './src/services/science-blog-processor.js';
-
-// import assertions are still experimental, so do not use the following:
-// import analyseConfig from './src/data/analyse.json' assert {type: 'json'};
-// instead:
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const analyseConfig = require('./src/data/analyse.json');
 
 // Check for --develop or --dev flag
 const PRODUCTION = !(yargs.argv.develop || yargs.argv.dev);
@@ -67,26 +55,13 @@ gulp.task(
   'build',
   gulp.series(
     clean,
-    cleanBlogs,
-    cleanScienceBlogs,
-    buildBlogFiles,
-    buildScienceBlogFiles,
-    cwaaJs,
-    analyseData,
     javascript,
-    gulp.parallel(pages, images_minify, copy, copyFAQs, copyFAQRedirects, copyFAQsDuplicate, copyBlogEntries),
+    gulp.parallel(pages, images_minify, copy),
     images_webp,
     sass,
-    build_sitemap,
-    createFaqRedirects,
-    replaceVersionNumbers,
-    deleteTmpFiles,
     AddEnglishSpecifier
   )
 );
-
-gulp.task('blog', gulp.series(cleanBlogs, buildBlogFiles));
-gulp.task('science', gulp.series(cleanScienceBlogs, buildScienceBlogFiles));
 
 // Run the server, and watch for file changes
 gulp.task('start-server', gulp.series(server, watch));
@@ -100,13 +75,6 @@ function clean(done) {
   rimraf(PATHS.dist, done);
 }
 
-function cleanBlogs(done) {
-  rimraf(PATHS.blogOutputs, done);
-}
-
-function cleanScienceBlogs(done) {
-  rimraf(PATHS.blogScienceOutputs, done);
-}
 const folders = [PATHS.dist, PATHS.dist + '/.well-known'];
 
 // Copy files out of the assets folder
@@ -121,44 +89,6 @@ function copy() {
   gulp.src(PATHS.rootAssets).pipe(gulp.dest(PATHS.dist));
   gulp.src(PATHS.wellKnown).pipe(gulp.dest(PATHS.dist + '/.well-known'));
   return gulp.src(PATHS.assets).pipe(gulp.dest(PATHS.dist + '/assets'));
-}
-
-function copyBlogImgs() {
-  return gulp.src(['blog/**/*', '!blog/**/*.md']).pipe(gulp.dest(PATHS.dist + '/assets/img/blog/'));
-}
-function copyScienceBlogImgs() {
-  return gulp.src(['science/**/*', '!science/**/*.md'])
-  .pipe(gulp.dest(function(file) {
-    return file.extname === '.mp4' ? PATHS.dist + '/assets/video' : PATHS.dist + '/assets/img/science/';
-  }));
-}
-
-// Prepare blog .md files to be used as HTML
-function buildBlogFiles(done) {
-  copyBlogImgs();
-  processBlogFiles();
-  done();
-}
-// Prepare science blog .md files to be used as HTML
-function buildScienceBlogFiles(done) {
-  copyScienceBlogImgs();
-  processScienceBlogFiles();
-  done();
-}
-
-function analyseData() {
-  return new Promise((resolve, reject) => {
-    try {
-      const data = fs.readFileSync('src/data/analyse-data.json', 'utf8');
-      if (!fs.existsSync('public/assets/dashboard')) {
-        fs.mkdirSync('public/assets/dashboard');
-      }
-      fs.writeFileSync(`./public/${analyseConfig.dataFile}`, data, { flag: 'w' });
-      resolve();
-    } catch (err) {
-      reject(err);
-    }
-  });
 }
 
 // Copy page templates into finished HTML files
@@ -207,39 +137,6 @@ function sass() {
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(PATHS.dist + '/assets/css'))
     .pipe(browser.reload({ stream: true }));
-}
-
-function cwaaJs() {
-  return gulp
-    .src(PATHS.cwaa)
-    .pipe(named())
-    .pipe(sourcemaps.init())
-    .pipe(
-      webpackStream(
-        {
-          mode: PRODUCTION ? 'production' : 'development',
-          module: {
-            rules: [
-              {
-                test: /\.js$/,
-                exclude: [/node_modules/],
-                use: {
-                  loader: 'babel-loader',
-                  options: {
-                    presets: ['@babel/preset-env'],
-                    compact: false,
-                  },
-                },
-              },
-            ],
-          },
-          devtool: 'source-map',
-        },
-        webpack2
-      )
-    )
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest(PATHS.dist + '/assets/js'));
 }
 
 // Combine JavaScript into one file
@@ -293,138 +190,13 @@ function images_webp() {
     .pipe(gulp.dest(PATHS.dist + '/assets/img'));
 }
 
-function copyFAQs(done) {
-  copyFAQ('de');
-  copyFAQ('en');
-  done();
-}
-
-function copyFAQsDuplicate(done) {
-  copyFAQDuplicate('de');
-  copyFAQDuplicate('en');
-  done();
-}
-
-function copyFAQ(lang) {
-  return gulp
-    .src(`src/data/faq${lang === 'en' ? '' : '_' + lang}.json`)
-    .pipe(
-      jsonTransform(function (data, file) {
-        let faq = {};
-        data['section-main'].topics.forEach((topic) => {
-          topic.sections.forEach((section) => {
-            section.accordion.forEach((faqEntry) => {
-              if (faqEntry.duplicate !== undefined) {
-                data['section-main'].topics.forEach((dtopic) => {
-                  dtopic.sections.forEach((dsection) => {
-                    dsection.accordion.forEach((dfaqEntry) => {
-                      if (dfaqEntry.duplicate === undefined && dfaqEntry.anchor === faqEntry.duplicate) {
-                        if (!faq[`${dfaqEntry.anchor}_dup_${section.id}`]) {
-                          const result = { ...dfaqEntry };
-                          result.anchor = `${dfaqEntry.anchor}_dup_${section.id}`;
-                          let searchEntry = result.title + ' ' + result.textblock.join(' ');
-                          faq[result.anchor] = searchEntry.toLowerCase().replace(/(<([^>]+)>)/gi, ' ');
-                        }
-                      }
-                    });
-                  });
-                });
-              } else {
-                let searchEntry = faqEntry.title + ' ' + faqEntry.textblock.join(' ');
-                faq[faqEntry.anchor] = searchEntry.toLowerCase().replace(/(<([^>]+)>)/gi, ' ');
-              }
-            });
-          });
-        });
-        return faq;
-      })
-    )
-    .pipe(rename('faq.json'))
-    .pipe(gulp.dest(PATHS.dist + `/${lang}/faq/results/`));
-}
-function copyFAQDuplicate(lang) {
-  return gulp
-    .src(`src/data/faq${lang === 'en' ? '' : '_' + lang}.json`)
-    .pipe(
-      jsonTransform(function (data, file) {
-        const faq = [];
-        data['section-main'].topics.forEach((topic) => {
-          topic.sections.forEach((section) => {
-            section.accordion.forEach((faqEntry) => {
-              if (faqEntry.duplicate !== undefined) {
-                const exist = faq.some((question) => question.anchor === `${faqEntry.duplicate}_dup_${section.id}`);
-                if (!exist) {
-                  data['section-main'].topics.forEach((dtopic) => {
-                    dtopic.sections.forEach((dsection) => {
-                      dsection.accordion.forEach((dfaqEntry) => {
-                        if (dfaqEntry.duplicate === undefined && dfaqEntry.anchor === faqEntry.duplicate) {
-                          const result = { ...dfaqEntry };
-                          result.anchor = `${dfaqEntry.anchor}_dup_${section.id}`;
-                          faq.push(result);
-                        }
-                      });
-                    });
-                  });
-                }
-              }
-            });
-          });
-        });
-        return faq;
-      })
-    )
-    .pipe(rename('faq_duplicate.json'))
-    .pipe(gulp.dest(PATHS.dist + `/${lang}/faq/results/`));
-}
-
-function copyBlogEntries(done) {
-  copyBlog('de', 'src/data/searchable_blogentries_de.json');
-  copyBlog('en', 'src/data/searchable_blogentries.json');
-  done();
-}
-
-function copyBlog(lang, tmpFilePath) {
-  let blogEntries = getBlogEntries(lang);
-  fs.writeFileSync(tmpFilePath, JSON.stringify(blogEntries));
-
-  return gulp
-    .src(tmpFilePath)
-    .pipe(
-      jsonTransform(function (data, file) {
-        let searchable_blogentries = {};
-        data.forEach((blogentry) => {
-          let searchEntry = blogentry.title + ' ' + blogentry.pageDescription + ' ' + blogentry.htmlContent;
-          searchable_blogentries[blogentry.slug] = searchEntry
-            .toLowerCase()
-            .replace(/(<([^>]+)>)/gi, ' ')
-            .replace(/\s+/g, ' ');
-        });
-        return searchable_blogentries;
-      })
-    )
-    .pipe(rename('searchable_blogentries.json'))
-    .pipe(gulp.dest(PATHS.dist + `/${lang}/blog/`));
-}
-
-function copyFAQRedirects() {
-  return gulp.src('src/data/faq_redirects.json').pipe(gulp.dest(PATHS.dist + '/assets/data'));
-}
-
 // Start a server with BrowserSync to preview the site in
 function server(done) {
   browser.init(
     {
       // mirror server headers to dev env
       middleware: function (req, res, next) {
-        let CSP =
-          "default-src 'self' 'unsafe-inline' 'unsafe-eval' *.coronawarn.app; img-src 'self' *.coronawarn.app data:";
-        if (req.url.indexOf('/science') != -1) {
-          CSP =
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' *.coronawarn.app; img-src 'self' *.coronawarn.app data:";
-        } else if (req.url.indexOf('/analysis') != -1) {
-          CSP =
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' *.coronawarn.app; img-src 'self' *.coronawarn.app data:; connect-src 'self' https://obs.eu-de.otc.t-systems.com/";
-        }
+        let CSP = "default-src 'self' 'unsafe-inline' 'unsafe-eval' *.coronawarn.app; img-src 'self' *.coronawarn.app data:";
 
         res.setHeader('Content-Security-Policy', CSP);
 
@@ -462,79 +234,18 @@ function watch(done) {
     return;
   }
   gulp.watch(PATHS.assets, copy);
-  gulp.watch('blog/**/*').on('all', gulp.series(buildBlogFiles, pages));
-  gulp.watch('science/**/*').on('all', gulp.series(buildScienceBlogFiles, pages));
-  //
-  // exclude output of buildBlogFiles and buildScienceBlogFiles from watching of pages
   gulp
     .watch([
-      'src/pages/**/*.html',
-      '!' + PATHS.blogOutputs,
-      '!' + PATHS.blogOutputs + '*',
-      '!' + PATHS.blogScienceOutputs,
-      '!' + PATHS.blogScienceOutputs + '*',
+      'src/pages/**/*.html'
     ])
     .on('all', gulp.series(pages, reload));
   gulp.watch('src/{layouts,partials}/**/*.html').on('all', gulp.series(resetPages, pages, reload));
   gulp.watch('src/data/**/*.{js,json,yml}').on('all', gulp.series(resetPages, pages, reload));
   gulp.watch('src/helpers/**/*.js').on('all', gulp.series(resetPages, pages, reload));
   gulp.watch('src/assets/scss/**/*.scss').on('all', sass);
-  gulp.watch(['src/assets/js/**/*.js', '!src/assets/js/analyse/**/*']).on('all', gulp.series(javascript, reload));
-  gulp.watch('src/assets/js/analyse/**/*.js').on('all', gulp.series(cwaaJs, reload));
+  gulp.watch('src/assets/js/**/*.js').on('all', gulp.series(javascript, reload));
   gulp.watch('src/assets/img/**/*').on('all', gulp.series(images_minify, images_webp, reload));
   done();
-}
-
-// generate an up-to-date sitemap
-function build_sitemap() {
-  return gulp
-    .src([PATHS.dist + '/**/*.html', '!' + PATHS.dist + '/error.html'])
-    .pipe(
-      sitemap({
-        siteUrl: 'https://coronawarn.app',
-        priority: function (siteUrl, loc, entry) {
-          // Reduce priority by 0.2 per level
-          return (10 - (entry.file.split('/').length - 1) * 2) / 10;
-        },
-      })
-    )
-    .pipe(gulp.dest(PATHS.dist));
-}
-
-// Just takes the properly build .html files and removes the ending
-function createFaqRedirects() {
-  return gulp
-    .src([PATHS.dist + '/**/faq/*.html', '!' + PATHS.dist + '/**/faq/index.html'])
-    .pipe(
-      rename(function (path) {
-        // Returns a completely new object, make sure you return all keys needed!
-        return {
-          dirname: path.dirname,
-          basename: path.basename,
-          extname: '',
-        };
-      })
-    )
-    .pipe(gulp.dest(PATHS.dist));
-}
-
-// replaces some values inside json that cant be replaced with handlebars expression since they are inside json
-function replaceVersionNumbers() {
-  return gulp
-    .src([PATHS.dist + '/**/*.html', PATHS.dist + '/**/*.json'])
-    .pipe(replace('[ios.minimum-required-os-version]', '12.5'))
-    .pipe(replace('[ios.minimum-app-version]', '1.5.3'))
-    .pipe(replace('[ios.current-app-version]', '3.2.3'))
-    .pipe(replace('[android.latest-os-version]', '13'))
-    .pipe(replace('[android.minimum-required-os-version]', '6'))
-    .pipe(replace('[android.minimum-app-version]', '1.0.4'))
-    .pipe(replace('[android.current-app-version]', '3.2.1'))
-    .pipe(gulp.dest(PATHS.dist));
-}
-
-function deleteTmpFiles(done) {
-  rimraf('src/data/searchable_blogentries_de.json', done);
-  rimraf('src/data/searchable_blogentries.json', done);
 }
 
 function AddEnglishSpecifier() {
