@@ -1,7 +1,7 @@
 {
     "section-main": {
         "image": {
-            "url": "/assets/img/thanks-de.png",
+            "url": "/assets/img/thanks-en.png",
             "title": "Community",
             "alt": "Thank you"
         },
@@ -9,7 +9,7 @@
             "title": "Thank you for your interest in the Corona-Warn-App",
             "textblock": [
                 "Following the end of the app's development on 31.05.2023, its website will also be discontinued.",
-                "Some of the content has been moved to the Robert Koch Institute website, where it is still available at <a href=\"https://www.rki.de/cwa\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.rki.de/cwa</a>"
+                "Some of the content has been moved to the Robert Koch Institute website, where it is still available at <a href=\"https://www.rki.de/cwa\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.rki.de/cwa</a>."
             ]
         }
     }
