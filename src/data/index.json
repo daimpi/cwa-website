@@ -6,10 +6,10 @@
             "alt": "Thank you"
         },
         "headline": {
-            "title": "Thank you for your interest in the Corona-Warn-App",
+            "title": "Thank you for your interest in the Corona-Warn-App.",
             "textblock": [
-                "Following the end of the app's development on 31.05.2023, its website will also be discontinued.",
-                "Some of the content has been moved to the Robert Koch Institute website, where it is still available at <a href=\"https://www.rki.de/cwa\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.rki.de/cwa</a>."
+                "Following the end of the app's development on 31 May 2023, its website has now also been discontinued.",
+                "Some of the content has been moved to the website of the Robert Koch Institute, where it is still available (most of it German only) at <a href=\"https://www.rki.de/cwa\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.rki.de/cwa</a>."
             ]
         }
     }
