@@ -2,6 +2,11 @@
 <section class="section">
     <div class="container">
         <div class="container-inner container-inner_lg">
+            <div class="row pb-3">
+                <div class="container">
+                    <a href="/{{#if lang_de}}de{{else}}en{{/if}}/" title="{{#if lang_de}}{{global.backToHomepage.de}}{{else}}{{global.backToHomepage.en}}{{/if}}">&lt; {{#if lang_de}}{{global.backToHomepage.de}}{{else}}{{global.backToHomepage.en}}{{/if}}</a>
+                </div>
+            </div>
             <div class="row">
                 <h1 class="h2 headline">{{page-contents.section-main.headline.title}}</h1>
             </div>
@@ -16,17 +21,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
-                    <br/>
-                {{> headline-small-component page-contents.section-main.app-headline}}
-                {{> text-component page-contents.section-main.app-content}}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <br/>
-                {{> headline-small-component page-contents.section-main.previous-headline}}
-                {{> text-component page-contents.section-main.previous-content}}
+                <div class="container">
+                    <a href="/{{#if lang_de}}de{{else}}en{{/if}}/" title="{{#if lang_de}}{{global.backToHomepage.de}}{{else}}{{global.backToHomepage.en}}{{/if}}">&lt; {{#if lang_de}}{{global.backToHomepage.de}}{{else}}{{global.backToHomepage.en}}{{/if}}</a>
                 </div>
             </div>
         </div>

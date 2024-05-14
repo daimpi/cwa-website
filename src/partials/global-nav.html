@@ -7,16 +7,11 @@
     </a>
   </div>
   <div class="col col-xs-6 col-md-9">
-    <button aria-label="Open Page Navigation Menu" class="btn-menu js-toggle"
-      data-target="#header-nav"></button>
+    <button aria-label="Open Page Navigation Menu" class="btn-menu js-toggle" data-target="#header-nav"></button>
     <nav class="header-nav" id="header-nav">
-      <button aria-label="Close Page Navigation Menu" class="btn-menu
-        btn-menu_close js-toggle" data-target="#header-nav"></button>
+      <button aria-label="Close Page Navigation Menu" class="btn-menu btn-menu_close js-toggle" data-target="#header-nav"></button>
       {{#if language.nav}}
       <ul class="nav js-main-navigation">
-        {{#each language.nav}}
-        {{> navlist-item item=.}}
-        {{/each}}
         <li class="nav-item lang">
           <a {{#if
             lang_de}}href="/en/{{#if screenshotsarchive}}screenshots-archive/{{/if}}{{#ifblogdetail}}blog/{{/ifblogdetail}}{{#ifsciencedetail}}science/{{/ifsciencedetail}}{{#if

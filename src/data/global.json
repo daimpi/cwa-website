@@ -8,137 +8,9 @@
         "en": "Following the shutdown of the Corona-Warn-App on May 31, 2023, this website will soon be shut down as well. You will find some of the content of this website on <a href='https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/WarnApp/Warn_App.html' target='_blank' rel='noopener noreferrer'>rki.de</a> (German only) from then on.",
         "de": "Nach der Abschaltung der Corona-Warn-App am 31.05.2023 wird diese Website bald auch abgeschaltet. Einen Teil der Inhalte dieser Website werden Sie ab dann auf <a href='https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/WarnApp/Warn_App.html' target='_blank' rel='noopener noreferrer'>rki.de</a> finden."
     },
-    "screenshots": {
-        "anchorText": {
-            "de": "Link zu dieser Sektion",
-            "en": "Link to this section"
-        },
-        "toTopText": {
-            "de": "Zum Anfang",
-            "en": "To the top"
-        },
-        "archive-dropdown": [
-            {
-                "version": "Version 2.2",
-                "link": "/screenshots-archive/2-2.html"
-            },
-            {
-                "version": "Version 2.3",
-                "link": "/screenshots-archive/2-3.html"
-            },
-            {
-                "version": "Version 2.4",
-                "link": "/screenshots-archive/2-4.html"
-            },
-            {
-                "version": "Version 2.5",
-                "link": "/screenshots-archive/2-5.html"
-            },
-            {
-                "version": "Version 2.6",
-                "link": "/screenshots-archive/2-6.html"
-            },
-            {
-                "version": "Version 2.7",
-                "link": "/screenshots-archive/2-7.html"
-            },
-            {
-                "version": "Version 2.8",
-                "link": "/screenshots-archive/2-8.html"
-            },
-            {
-                "version": "Version 2.9",
-                "link": "/screenshots-archive/2-9.html"
-            },
-            {
-                "version": "Version 2.10",
-                "link": "/screenshots-archive/2-10.html"
-            },
-            {
-                "version": "Version 2.11",
-                "link": "/screenshots-archive/2-11.html"
-            },
-            {
-                "version": "Version 2.12",
-                "link": "/screenshots-archive/2-12.html"
-            },
-            {
-                "version": "Version 2.13",
-                "link": "/screenshots-archive/2-13.html"
-            },
-            {
-                "version": "Version 2.14",
-                "link": "/screenshots-archive/2-14.html"
-            },
-            {
-                "version": "Version 2.15",
-                "link": "/screenshots-archive/2-15.html"
-            },
-            {
-                "version": "Version 2.16",
-                "link": "/screenshots-archive/2-16.html"
-            },
-            {
-                "version": "Version 2.17",
-                "link": "/screenshots-archive/2-17.html"
-            },
-            {
-                "version": "Version 2.18",
-                "link": "/screenshots-archive/2-18.html"
-            },
-            {
-                "version": "Version 2.19",
-                "link": "/screenshots-archive/2-19.html"
-            },
-            {
-                "version": "Version 2.20",
-                "link": "/screenshots-archive/2-20.html"
-            },
-            {
-                "version": "Version 2.21",
-                "link": "/screenshots-archive/2-21.html"
-            },
-            {
-                "version": "Version 2.22",
-                "link": "/screenshots-archive/2-22.html"
-            },
-            {
-                "version": "Version 2.23",
-                "link": "/screenshots-archive/2-23.html"
-            },
-            {
-                "version": "Version 2.24",
-                "link": "/screenshots-archive/2-24.html"
-            },
-            {
-                "version": "Version 2.25",
-                "link": "/screenshots-archive/2-25.html"
-            },
-            {
-                "version": "Version 2.26",
-                "link": "/screenshots-archive/2-26.html"
-            },
-            {
-                "version": "Version 2.27",
-                "link": "/screenshots-archive/2-27.html"
-            },
-            {
-                "version": "Version 2.28",
-                "link": "/screenshots-archive/2-28.html"
-            },
-            {
-                "version": "Version 3.0",
-                "link": "/screenshots-archive/3-0.html"
-            },
-            {
-                "version": "Version 3.1",
-                "link": "/screenshots-archive/3-1.html"
-            },
-            {
-                "version": "Version 3.2",
-                "link": "/screenshots"
-            }
-        ]
+    "backToHomepage": {
+        "de": "Zurück zur Startseite",
+        "en": "Back to homepage"
     },
     "error": {
         "title": "Sorry …",
@@ -341,7 +213,7 @@
                 }
             ],
             "copyright": {
-                "title": "© 2020-2023 - The authors of the Corona-Warn-App open-source project",
+                "title": "© 2020-2024 - The authors of the Corona-Warn-App open-source project",
                 "url": "https://github.com/corona-warn-app/cwa-website/graphs/contributors",
                 "external": true
             }
@@ -511,7 +383,7 @@
                 }
             ],
             "copyright": {
-                "title": "© 2020-2023 - Mitwirkende Personen des Open-Source-Projekts für Corona-Warn-App",
+                "title": "© 2020-2024 - Mitwirkende Personen des Open-Source-Projekts für Corona-Warn-App",
                 "url": "https://github.com/corona-warn-app/cwa-website/graphs/contributors",
                 "external": true
             }
